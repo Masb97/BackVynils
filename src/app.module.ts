@@ -32,22 +32,27 @@ import { CollectorPerformerModule } from './collectorperformer/collectorperforme
 import { AlbumBandModule } from './albumband/albumband.module';
 import { AlbumMusicianModule } from './albummusician/albummusician.module';
 
+const databaseUrl = process.env.DATABASE_URL;
+const useSsl = process.env.USE_SSL === 'true' || !!databaseUrl;
+
 @Module({
   imports: [  
     TypeOrmModule.forRoot({
       type: 'postgres',
+      ...(databaseUrl ? { url: databaseUrl } : {
       host: process.env.DB_HOST || 'localhost',
       port: 5432,
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASS || 'postgres',
       database: process.env.DB_NAME || 'vinyls',
+      }),
       entities: [Album, CollectorAlbum, Band, Collector, Comment, Musician, Performer, PerformerPrize, Prize, Track,],
       dropSchema: false,
       synchronize: true,
       keepConnectionAlive: true,
       migrations: [__dirname + '/migration/**/*{.ts,.js}'],
       migrationsRun: true,
-      extra: process.env.USE_SSL === 'true' ? {
+      extra: useSsl ? {
         ssl: {
           rejectUnauthorized: false,
           sslmode: 'require'

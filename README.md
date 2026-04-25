@@ -47,6 +47,43 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Deploy To Heroku (Eco Dyno)
+
+1. Create the app and set Eco dynos for web and worker (if needed):
+
+```bash
+heroku create <your-app-name>
+heroku ps:type eco --app <your-app-name>
+```
+
+2. Provision Heroku Postgres and configure SSL:
+
+```bash
+heroku addons:create heroku-postgresql:essential-0 --app <your-app-name>
+heroku config:set USE_SSL=true --app <your-app-name>
+```
+
+3. Deploy from this repository:
+
+```bash
+git push heroku main
+```
+
+4. Scale the web dyno and verify:
+
+```bash
+heroku ps:scale web=1 --app <your-app-name>
+heroku logs --tail --app <your-app-name>
+```
+
+This project is configured for Heroku with:
+
+- `Procfile` web process (`npm run start:prod`)
+- dynamic `PORT` usage in Nest bootstrap
+- `DATABASE_URL` support for PostgreSQL
+- SSL support for Heroku Postgres
+- `heroku-postbuild` script to compile `dist/` during slug build
+
 ## Test
 
 ```bash
